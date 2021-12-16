@@ -1,0 +1,24 @@
+http:
+  routers:
+    router-test-endpoint:
+      entryPoints:
+        - Main
+      service: mirroring-service
+      priority: 100
+      rule: PathPrefix(`/test`)
+  services:
+    test1:
+      loadBalancer:
+        servers:
+          - url: http://test1:8081/
+    test2:
+      loadBalancer:
+        servers:
+          - url: http://test2:8082/
+    mirroring-service:
+      mirroring:
+        service: test1
+        maxBodySize: -1
+        mirrors:
+          - name: test2
+            percent: 100

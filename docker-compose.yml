@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.5.3
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+      - "8083:8083"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./static/static.yaml:/etc/traefik/traefik.yml
+      - ./dynamic/dynamic.yaml:/etc/traefik/dynamic.yml
+    labels:
+      - "traefik.enable=true"
+
+  test1:
+    image: sleep-test-demo-traefik
+    container_name: test1
+    restart: always
+    build:
+      context: ./demo
+      dockerfile: Dockerfile
+    environment:
+      PORT: 8081
+      SLEEP: 3
+    ports:
+      - '8081:8081'
+    labels:
+      - "traefik.http.routers.test1.rule=Host(`test1.docker.localhost`)"
+
+  test2:
+    image: sleep-test-demo-traefik
+    container_name: test2
+    restart: always
+    build:
+      context: ./demo
+      dockerfile: Dockerfile
+    environment:
+      PORT: 8082
+      SLEEP: 2
+    ports:
+      - '8082:8082'
+    labels:
+      - "traefik.http.routers.test2.rule=Host(`test2.docker.localhost`)"

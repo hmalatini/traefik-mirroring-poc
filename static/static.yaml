@@ -1,0 +1,38 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+serversTransport:
+  insecureSkipVerify: false
+  maxIdleConnsPerHost: 10
+  forwardingTimeouts:
+    dialTimeout: 1s
+    responseHeaderTimeout: 0 # No timeout
+    idleConnTimeout: 90s
+
+entryPoints:
+  Main:
+    address: ":8083"
+    transport:
+      lifeCycle:
+        requestAcceptGraceTimeout: 0
+        graceTimeOut: 10s
+      respondingTimeouts:
+        readTimeout: 0 # No timeout
+        writeTimeout: 0 # No timeout
+        idleTimeout: 180s
+    forwardedHeaders:
+      insecure: true
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+  file:
+    filename: "/etc/traefik/dynamic.yml"
+
+api:
+  insecure: true
+  dashboard: true
+  debug: true
+
