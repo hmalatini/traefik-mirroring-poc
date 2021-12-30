@@ -10,8 +10,11 @@ RUN apk add dumb-init
 RUN mkdir /app
 RUN addgroup --system javauser && adduser -S -s /bin/false -G javauser javauser
 COPY --from=build /project/target/demo-app.jar /app/java-application.jar
+
+# To let spring intialize tomcat servcer (also added the argunment on the app command launch)
+RUN mkdir -p /app/tomcat /app/static /app/tomcat/work/Tomcat/localhost/ROOT
+
 WORKDIR /app
 RUN chown -R javauser:javauser /app
-RUN mkdir /tmp/tomcat static
 USER javauser
-CMD "dumb-init" "java" "-Dserver.tomcat.basedir=/tmp/tomcat" "-jar" "java-application.jar"
+CMD "dumb-init" "java" "-Dserver.tomcat.basedir=/app/tomcat" "-jar" "java-application.jar"
